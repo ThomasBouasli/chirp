@@ -18,7 +18,7 @@ const PostView = ({ author, post }: PostWithAuthor) => {
   return (
     <div className="flex gap-4 rounded-md p-4 shadow shadow-black">
       <Image
-        src={author.profileImageUrl}
+        src={author.imageUrl}
         alt="Profile Image"
         height={56}
         width={56}
