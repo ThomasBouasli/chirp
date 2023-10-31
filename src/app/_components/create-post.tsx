@@ -24,10 +24,13 @@ export function CreatePost() {
       <div className="flex grow items-center justify-center">
         <span className="font-thin">
           Please,&nbsp;
-          <span className="cursor-pointer" onClick={() => openSignIn()}>
+          <span
+            className="cursor-pointer font-bold"
+            onClick={() => openSignIn()}
+          >
             sign in
           </span>
-          to post
+          &nbsp;to post
         </span>
       </div>
     );
