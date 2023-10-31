@@ -8,6 +8,14 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(3, "1 m"),
+  analytics: true,
+});
 const filterUserForClient = (user: User) => {
   return {
     id: user.id,
@@ -25,6 +33,7 @@ export const postRouter = createTRPCRouter({
 
     const users = (
       await clerkClient.users.getUserList({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- typescript is being naughty
         userId: posts.map((post) => post.authorId),
         limit: 100,
       })
@@ -53,6 +62,15 @@ export const postRouter = createTRPCRouter({
   create: privateProcedure
     .input(z.string().min(1).max(255))
     .mutation(async ({ ctx, input }) => {
+      const { success } = await ratelimit.limit(ctx.userId);
+
+      if (!success) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "You are doing that too much",
+        });
+      }
+
       const post = await ctx.db.post.create({
         data: {
           authorId: ctx.userId,

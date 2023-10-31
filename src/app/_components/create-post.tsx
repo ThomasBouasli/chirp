@@ -12,7 +12,13 @@ export function CreatePost() {
 
   if (!user) return null;
 
-  const { mutate } = api.post.create.useMutation();
+  const { post } = api.useUtils();
+
+  const { mutate } = api.post.create.useMutation({
+    onSuccess: () => {
+      void post.getAll.invalidate();
+    },
+  });
 
   return (
     <div className="flex w-full gap-4">
