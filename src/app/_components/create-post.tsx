@@ -11,7 +11,7 @@ export function CreatePost() {
   if (!user) return null;
 
   return (
-    <div className="flex gap-4 p-4">
+    <div className="flex w-full gap-4">
       <Image
         src={user.imageUrl}
         alt="Profile Image"
