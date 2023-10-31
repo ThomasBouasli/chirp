@@ -19,8 +19,7 @@ const ratelimit = new Ratelimit({
 const filterUserForClient = (user: User) => {
   return {
     id: user.id,
-    username:
-      user?.username ?? `${user?.firstName ?? "Anon"} ${user.lastName}}`,
+    username: user?.username ?? `${user?.firstName ?? "Anon"} ${user.lastName}`,
     imageUrl: user.imageUrl,
   };
 };
