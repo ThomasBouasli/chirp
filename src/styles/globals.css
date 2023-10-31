@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-zinc-900 text-slate-100;
+@layer base {
+  body {
+    @apply bg-zinc-900 text-slate-100;
+  }
+}
+
+@keyframes pop_in {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+    display: block;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pop_out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+    display: none;
+  }
+}
+
+@layer utilities {
+  .pop_in {
+    animation: pop_in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  .pop_out {
+    animation: pop_out 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
 }
