@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
 import { CreatePost } from "./_components/create-post";
 import type { RouterOutputs } from "~/trpc/shared";
@@ -11,6 +11,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { LoadingPage } from "./_components/loading-spinner";
 import { useMediaQuery } from "react-responsive";
 import { useEffect } from "react";
+import { dark } from "@clerk/themes";
+import { Bug } from "lucide-react";
 
 dayjs.extend(relativeTime);
 
@@ -95,15 +97,22 @@ const Feed = () => {
 };
 
 export default function Home() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded } = useUser();
+  const isMobile = useMediaQuery({
+    query: "(max-width: 640px)",
+  });
 
   if (!isLoaded) return <div />;
 
   return (
     <main className="flex min-h-screen flex-col items-center">
       <div className="flex h-full w-full grow flex-col border-x border-zinc-700 md:max-w-2xl">
-        <div className="flex h-20 border-b border-zinc-700 p-4">
-          {isSignedIn && <CreatePost />}
+        <header className="flex h-20 items-center justify-between border-b border-zinc-700 p-4">
+          <span className="text-2xl font-bold">Chirp</span>
+          <UserButton appearance={{ baseTheme: dark }} showName={!isMobile} />
+        </header>
+        <div className="flex h-fit border-b border-zinc-700 p-4">
+          <CreatePost />
         </div>
         <Feed />
       </div>
