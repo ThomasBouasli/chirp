@@ -2,7 +2,6 @@
 
 import { useUser, UserButton } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { z } from "zod";

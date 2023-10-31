@@ -25,40 +25,65 @@ const filterUserForClient = (user: User) => {
 };
 
 export const postRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    const posts = await ctx.db.post.findMany({
-      take: 100,
-      orderBy: { createdAt: "desc" },
-    });
+  getAll: publicProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(30).nullish(),
+          cursor: z.string().nullish(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const limit = input?.limit ?? 30;
+      const cursor = input?.cursor;
 
-    const users = (
-      await clerkClient.users.getUserList({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- typescript is being naughty
-        userId: posts.map((post) => post.authorId),
-        limit: 100,
-      })
-    ).map(filterUserForClient);
+      const posts = await ctx.db.post.findMany({
+        take: limit + 1,
+        orderBy: { createdAt: "desc" },
+        cursor: cursor ? { id: cursor } : undefined,
+      });
 
-    return posts.map((post) => {
-      const author = users.find((user) => user.id === post.authorId);
+      let nextCursor: typeof cursor | undefined = undefined;
 
-      if (!author?.username) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Author not found",
-        });
+      if (posts.length > limit) {
+        const nextItem = posts.pop();
+        nextCursor = nextItem!.id;
       }
 
+      const users = (
+        await clerkClient.users.getUserList({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- typescript is being naughty
+          userId: posts.map((post) => post.authorId),
+          limit: 100,
+        })
+      ).map(filterUserForClient);
+
+      const joined = posts.map((post) => {
+        const author = users.find((user) => user.id === post.authorId);
+
+        if (!author?.username) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Author not found",
+          });
+        }
+
+        return {
+          post,
+          author: {
+            //because typescript is dumb
+            ...author,
+            username: author.username,
+          },
+        };
+      });
+
       return {
-        post,
-        author: {
-          //because typescript is dumb
-          ...author,
-          username: author.username,
-        },
+        posts: joined,
+        nextCursor,
       };
-    });
-  }),
+    }),
   create: privateProcedure
     .input(z.string().emoji("Posts can only contain emojis 🤷‍♂️").min(1).max(255))
     .mutation(async ({ ctx, input }) => {

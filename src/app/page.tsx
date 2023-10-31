@@ -10,10 +10,11 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { LoadingPage } from "./_components/loading-spinner";
 import { useMediaQuery } from "react-responsive";
+import { useEffect } from "react";
 
 dayjs.extend(relativeTime);
 
-type PostWithAuthor = RouterOutputs["post"]["getAll"][number];
+type PostWithAuthor = RouterOutputs["post"]["getAll"]["posts"][number];
 
 const PostView = ({ author, post }: PostWithAuthor) => {
   const isMobile = useMediaQuery({
@@ -46,31 +47,62 @@ const PostView = ({ author, post }: PostWithAuthor) => {
 };
 
 const Feed = () => {
-  const { data, isLoading: postsLoading } = api.post.getAll.useQuery();
+  const infiniteQuery = api.post.getAll.useInfiniteQuery(
+    {
+      limit: 10,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+
+  const { data, isLoading: postsLoading } = infiniteQuery;
+
+  useEffect(() => {
+    const observer: IntersectionObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries?.[0]?.isIntersecting) {
+          void infiniteQuery.fetchNextPage();
+        }
+      },
+    );
+
+    const bottomElement = document.getElementById("feed-bottom");
+
+    if (bottomElement) {
+      observer.observe(bottomElement);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [infiniteQuery]);
 
   if (postsLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong...</div>;
 
   return (
-    <div className="flex flex-col gap-2 p-4">
-      {data?.map(({ author, post }) => (
-        <PostView key={post.id} author={author} post={post} />
-      ))}
+    <div className="flex flex-col gap-4 p-4">
+      {data.pages.map((page) => {
+        return page.posts.map(({ author, post }) => {
+          return <PostView key={post.id} author={author} post={post} />;
+        });
+      })}
+      <div id="feed-bottom" />
     </div>
   );
 };
 
 export default function Home() {
-  api.post.getAll.useQuery(); // prefetch
   const { isLoaded, isSignedIn } = useUser();
 
   if (!isLoaded) return <div />;
 
   return (
     <main className="flex min-h-screen justify-center">
-      <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
-        <div className="flex h-20 border-b border-slate-400 px-4 py-2">
+      <div className="h-full w-full border-x border-zinc-700 md:max-w-2xl">
+        <div className="flex h-20 border-b border-zinc-700 p-4">
           {isSignedIn && <CreatePost />}
         </div>
         <Feed />
