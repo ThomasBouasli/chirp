@@ -34,10 +34,10 @@ export function CreatePost() {
   return (
     <div className="flex w-full gap-4">
       <UserButton appearance={{ baseTheme: dark }} />
-      <div className="w-full grow">
-        <input
+      <div className="flex w-full grow flex-col">
+        <textarea
           placeholder="What's on your mind?"
-          className="bg-transparent outline-none"
+          className="grow resize-none bg-transparent outline-none"
           value={input}
           onChange={(e) => {
             if (e.target.value.length > 0) {

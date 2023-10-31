@@ -21,7 +21,7 @@ const PostView = ({ author, post }: PostWithAuthor) => {
   });
 
   return (
-    <div className="flex gap-2 rounded-md p-2 shadow shadow-black">
+    <div className="pop_in flex gap-2 rounded-md p-2 shadow shadow-black">
       <div className="flex-shrink-0">
         <Image
           src={author.imageUrl}
@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen justify-center">
       <div className="h-full w-full border-x border-slate-400 md:max-w-2xl">
-        <div className="flex border-b border-slate-400 p-4">
+        <div className="flex h-20 border-b border-slate-400 px-4 py-2">
           {isSignedIn && <CreatePost />}
         </div>
         <Feed />
