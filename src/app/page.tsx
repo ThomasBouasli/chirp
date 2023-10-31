@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { api } from "~/trpc/react";
 import { CreatePost } from "./_components/create-post";
 import type { RouterOutputs } from "~/trpc/shared";
