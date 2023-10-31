@@ -19,7 +19,7 @@ const ratelimit = new Ratelimit({
 const filterUserForClient = (user: User) => {
   return {
     id: user.id,
-    username: user.username,
+    username: user?.username ?? `${user?.firstName ?? "Anon"} ${user.lastName}}`,
     imageUrl: user.imageUrl,
   };
 };
@@ -59,6 +59,7 @@ export const postRouter = createTRPCRouter({
         })
       ).map(filterUserForClient);
 
+
       const joined = posts.map((post) => {
         const author = users.find((user) => user.id === post.authorId);
 
@@ -74,7 +75,7 @@ export const postRouter = createTRPCRouter({
           author: {
             //because typescript is dumb
             ...author,
-            username: author.username,
+            username: author.username ??
           },
         };
       });
