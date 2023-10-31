@@ -83,7 +83,7 @@ const Feed = () => {
   if (!data) return <div>Something went wrong...</div>;
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex grow flex-col gap-4 p-4">
       {data.pages.map((page) => {
         return page.posts.map(({ author, post }) => {
           return <PostView key={post.id} author={author} post={post} />;
@@ -100,8 +100,8 @@ export default function Home() {
   if (!isLoaded) return <div />;
 
   return (
-    <main className="flex min-h-screen justify-center">
-      <div className="h-full w-full border-x border-zinc-700 md:max-w-2xl">
+    <main className="flex min-h-screen flex-col items-center">
+      <div className="flex h-full w-full grow flex-col border-x border-zinc-700 md:max-w-2xl">
         <div className="flex h-20 border-b border-zinc-700 p-4">
           {isSignedIn && <CreatePost />}
         </div>
