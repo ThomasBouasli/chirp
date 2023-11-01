@@ -90,7 +90,11 @@ export const postRouter = createTRPCRouter({
         .string()
         .emoji("Posts can only contain emojis 🤷‍♂️")
         .min(1, "Don't be shy 😳! Say something 💬! ")
-        .max(255, "Calm down there, Buckaroo 🤠. That's a bit too much 😅"),
+        .max(255, "Calm down there, Buckaroo 🤠. That's a bit too much 😅")
+        .regex(
+          /^(?!.*[🍆🍑👌💦]).*$/,
+          "Please don't! You`ve used an emoji that is in our no-no list.",
+        ),
     )
     .mutation(async ({ ctx, input }) => {
       const { success } = await ratelimit.limit(ctx.userId);

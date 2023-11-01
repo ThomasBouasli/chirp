@@ -10,8 +10,6 @@ import { TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { api } from "~/trpc/react";
 
 export function CreatePost() {
-  const formReference = useRef<HTMLFormElement>(null);
-
   const { user } = useUser();
   const { openSignIn } = useClerk();
 
@@ -29,6 +27,7 @@ export function CreatePost() {
       const errorMessage = e.data?.zodError?.formErrors?.[0] ?? e.message;
       toast.error(errorMessage ?? "Something went wrong");
     },
+    useErrorBoundary: false,
   });
 
   if (!user)
@@ -48,7 +47,7 @@ export function CreatePost() {
     );
 
   return (
-    <form className="flex w-full gap-4" ref={formReference}>
+    <div className="flex w-full gap-4">
       <div className="flex-shrink-0">
         <Image
           src={user.imageUrl}
@@ -138,7 +137,7 @@ export function CreatePost() {
           setCharacters(0);
         }}
       />
-    </form>
+    </div>
   );
 }
 
@@ -169,7 +168,7 @@ const PostButton = ({ onClick, show }: PostButtonProps) => {
       ref={buttonReference}
       className="h-fit rounded-md bg-blue-500 px-4 py-2 text-white opacity-0 hover:bg-blue-600"
       onClick={onClick}
-      type="submit"
+      type="button"
     >
       Post
     </button>
