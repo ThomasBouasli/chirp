@@ -12,7 +12,7 @@ import { LoadingPage } from "./_components/loading-spinner";
 import { useMediaQuery } from "react-responsive";
 import { useEffect } from "react";
 import { dark } from "@clerk/themes";
-import { Edit, MoreVertical, Trash } from "lucide-react";
+import { MoreVertical, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +57,7 @@ const PostView = ({ author, post }: PostWithAuthor) => {
           <div className="flex items-center text-slate-300">
             <span className="text-sm">{`@${author.username}`}</span>
             &nbsp;·&nbsp;
-            <span className="text-xs font-thin">
+            <span className="text-xs">
               {dayjs(post.createdAt).fromNow(isMobile)}
             </span>
           </div>
@@ -151,7 +151,11 @@ export default function Home() {
       <div className="flex h-full w-full grow flex-col border-x border-zinc-700 md:max-w-2xl">
         <header className="flex h-20 items-center justify-between border-b border-zinc-700 p-4">
           <span className="text-2xl font-bold">Chirp</span>
-          <UserButton appearance={{ baseTheme: dark }} showName={!isMobile} />
+          <UserButton
+            appearance={{ baseTheme: dark }}
+            showName={!isMobile}
+            afterSignOutUrl="/"
+          />
         </header>
         <div className="flex h-fit border-b border-zinc-700 p-4">
           <CreatePost />

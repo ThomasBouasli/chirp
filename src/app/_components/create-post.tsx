@@ -19,22 +19,6 @@ export function CreatePost() {
   const [input, setInput] = useState("");
   const [characters, setCharacters] = useState(0);
 
-  if (!user)
-    return (
-      <div className="flex grow items-center justify-center">
-        <span className="font-thin">
-          Please,&nbsp;
-          <span
-            className="cursor-pointer font-bold"
-            onClick={() => openSignIn()}
-          >
-            sign in
-          </span>
-          &nbsp;to post
-        </span>
-      </div>
-    );
-
   const { post } = api.useUtils();
 
   const { mutate } = api.post.create.useMutation({
@@ -46,6 +30,22 @@ export function CreatePost() {
       toast.error(errorMessage ?? "Something went wrong");
     },
   });
+
+  if (!user)
+    return (
+      <div className="flex grow items-center justify-center">
+        <span>
+          Please,&nbsp;
+          <span
+            className="cursor-pointer font-bold"
+            onClick={() => openSignIn()}
+          >
+            sign in
+          </span>
+          &nbsp;to post
+        </span>
+      </div>
+    );
 
   return (
     <form className="flex w-full gap-4" ref={formReference}>
