@@ -19,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 
 dayjs.extend(relativeTime);
 
@@ -33,7 +34,7 @@ const PostView = ({ author, post }: PostWithAuthor) => {
       void apiUtils.post.getAll.invalidate();
     },
     onError: (e) => {
-      console.error(e);
+      toast.error(e.message);
     },
   });
 
@@ -74,10 +75,6 @@ const PostView = ({ author, post }: PostWithAuthor) => {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              {/* <DropdownMenuItem>
-                <Edit className="mr-2 flex-shrink-0" size={16} />
-                Edit
-              </DropdownMenuItem> */}
               <DropdownMenuItem onClick={() => deleteMutate(post.id)}>
                 <Trash className="mr-2 flex-shrink-0" size={16} />
                 Delete
