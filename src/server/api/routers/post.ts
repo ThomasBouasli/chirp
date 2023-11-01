@@ -111,4 +111,67 @@ export const postRouter = createTRPCRouter({
 
       return post;
     }),
+
+  delete: privateProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input },
+      });
+
+      if (!post) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Post not found",
+        });
+      }
+
+      if (post.authorId !== ctx.userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only delete your own posts",
+        });
+      }
+
+      await ctx.db.post.delete({
+        where: { id: input },
+      });
+
+      return true;
+    }),
+  edit: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        content: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const post = await ctx.db.post.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!post) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Post not found",
+        });
+      }
+
+      if (post.authorId !== ctx.userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You can only edit your own posts",
+        });
+      }
+
+      await ctx.db.post.update({
+        where: { id: input.id },
+        data: {
+          content: input.content,
+        },
+      });
+
+      return true;
+    }),
 });

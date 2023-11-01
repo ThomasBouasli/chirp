@@ -12,38 +12,80 @@ import { LoadingPage } from "./_components/loading-spinner";
 import { useMediaQuery } from "react-responsive";
 import { useEffect } from "react";
 import { dark } from "@clerk/themes";
-import { Bug } from "lucide-react";
+import { Edit, MoreVertical, Trash } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 dayjs.extend(relativeTime);
 
 type PostWithAuthor = RouterOutputs["post"]["getAll"]["posts"][number];
 
 const PostView = ({ author, post }: PostWithAuthor) => {
+  const apiUtils = api.useUtils();
+  const user = useUser();
+
+  const { mutate: deleteMutate } = api.post.delete.useMutation({
+    onSuccess: () => {
+      void apiUtils.post.getAll.invalidate();
+    },
+    onError: (e) => {
+      console.error(e);
+    },
+  });
+
   const isMobile = useMediaQuery({
     query: "(max-width: 640px)",
   });
 
   return (
-    <div className="pop_in flex gap-2 rounded-md p-2 shadow shadow-black">
-      <div className="flex-shrink-0">
-        <Image
-          src={author.imageUrl}
-          alt="Profile Image"
-          height={40}
-          width={40}
-          className="rounded-full"
-        />
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center text-slate-300">
-          <span className="text-sm">{`@${author.username}`}</span>
-          &nbsp;·&nbsp;
-          <span className="text-xs font-thin">
-            {dayjs(post.createdAt).fromNow(isMobile)}
-          </span>
+    <div className="pop_in flex justify-between gap-2 rounded-md p-2 shadow shadow-black">
+      <div className="flex gap-2">
+        <div className="flex-shrink-0">
+          <Image
+            src={author.imageUrl}
+            alt="Profile Image"
+            height={40}
+            width={40}
+            className="rounded-full"
+          />
         </div>
-        <span>{post.content}</span>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center text-slate-300">
+            <span className="text-sm">{`@${author.username}`}</span>
+            &nbsp;·&nbsp;
+            <span className="text-xs font-thin">
+              {dayjs(post.createdAt).fromNow(isMobile)}
+            </span>
+          </div>
+          <span>{post.content}</span>
+        </div>
       </div>
+      {!!user && (
+        <div>
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <MoreVertical
+                className="flex-shrink-0 cursor-pointer"
+                size={20}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {/* <DropdownMenuItem>
+                <Edit className="mr-2 flex-shrink-0" size={16} />
+                Edit
+              </DropdownMenuItem> */}
+              <DropdownMenuItem onClick={() => deleteMutate(post.id)}>
+                <Trash className="mr-2 flex-shrink-0" size={16} />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
     </div>
   );
 };
