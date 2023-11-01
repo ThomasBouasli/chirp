@@ -1,28 +1,11 @@
-# Create T3 App
+# Chirp 🐦
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+A simple tweeter clone, with the core mechanic being...
 
-## What's next? How do I make an app with this?
+## Emoji Only 😃
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+**Constraints are the best creativity boost!** if you want to express yourself in tweeter, you have to be able to do so in 255 characters, but in Chirp, we go a step further. You migth think that it would be too hard to comunicate only with emojis, but [research](https://www.youtube.com/watch?v=dQw4w9WgXcQ) sujests an image is worth a thousand words or even more!, therefore you get 2500 words without feeling like you're reading an article!
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+You have a problem with someone? An idea you want to share? Chirp is the place to go!
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
-
-## Learn More
-
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+Come and join us at [chrip](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
