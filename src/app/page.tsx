@@ -26,7 +26,7 @@ type PostWithAuthor = RouterOutputs["post"]["getAll"]["posts"][number];
 
 const PostView = ({ author, post }: PostWithAuthor) => {
   const apiUtils = api.useUtils();
-  const user = useUser();
+  const { isSignedIn, user } = useUser();
 
   const { mutate: deleteMutate } = api.post.delete.useMutation({
     onSuccess: () => {
@@ -64,7 +64,7 @@ const PostView = ({ author, post }: PostWithAuthor) => {
           <span>{post.content}</span>
         </div>
       </div>
-      {!!user && (
+      {isSignedIn && user.id == author.id && (
         <div>
           <DropdownMenu>
             <DropdownMenuTrigger>
