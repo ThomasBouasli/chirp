@@ -8,4 +8,4 @@ A simple tweeter clone, with the core mechanic being...
 
 You have a problem with someone? An idea you want to share? Chirp is the place to go!
 
-Come and join us at [chrip](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+Come and join us at [chrip](https://chirp.bouasli.com/)
