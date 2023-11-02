@@ -105,7 +105,7 @@ const PostView = ({ author, post, disableComments }: PostViewProps) => {
       </div>
       {sendReply && (
         <div className="relative flex flex-col gap-2 border-t p-2 pt-4">
-          <CreatePost parentId={post.id} />
+          {isSignedIn && <CreatePost parentId={post.id} />}
           <Feed parentId={post.id} />
         </div>
       )}
