@@ -31,17 +31,29 @@ export const postRouter = createTRPCRouter({
         .object({
           limit: z.number().min(1).max(30).nullish(),
           cursor: z.string().nullish(),
+          parentId: z.string().nullish(),
         })
         .optional(),
     )
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 30;
       const cursor = input?.cursor;
+      const parentId = input?.parentId;
 
       const posts = await ctx.db.post.findMany({
+        where: { parentId: parentId ?? null },
         take: limit + 1,
         orderBy: { createdAt: "desc" },
         cursor: cursor ? { id: cursor } : undefined,
+        select: {
+          id: true,
+          content: true,
+          authorId: true,
+          createdAt: true,
+          _count: {
+            select: { children: true },
+          },
+        },
       });
 
       let nextCursor: typeof cursor | undefined = undefined;
@@ -86,13 +98,18 @@ export const postRouter = createTRPCRouter({
     }),
   create: privateProcedure
     .input(
-      z
-        .string()
-        .emoji("Posts can only contain emojis 🤷‍♂️")
-        .min(1, "Don't be shy 😳! Say something 💬! ")
-        .max(255, "Calm down there, Buckaroo 🤠. That's a bit too much 😅"),
+      z.object({
+        content: z
+          .string()
+          .emoji("Posts can only contain emojis 🤷‍♂️")
+          .min(1, "Don't be shy 😳! Say something 💬! ")
+          .max(255, "Calm down there, Buckaroo 🤠. That's a bit too much 😅"),
+        parentId: z.string().nullish(),
+      }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { content, parentId } = input;
+
       const { success } = await ratelimit.limit(ctx.userId);
 
       if (!success) {
@@ -105,7 +122,8 @@ export const postRouter = createTRPCRouter({
       const post = await ctx.db.post.create({
         data: {
           authorId: ctx.userId,
-          content: input,
+          content,
+          parentId,
         },
       });
 
@@ -133,7 +151,11 @@ export const postRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.post.delete({
+      await ctx.db.post.deleteMany({
+        where: { parentId: input },
+      });
+
+      await ctx.db.post.deleteMany({
         where: { id: input },
       });
 

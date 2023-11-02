@@ -5,10 +5,11 @@ import { LoadingPage } from "./loading-spinner";
 import PostView from "./post";
 import { api } from "~/trpc/react";
 
-const Feed = () => {
+const Feed = ({ parentId }: { parentId?: string }) => {
   const infiniteQuery = api.post.getAll.useInfiniteQuery(
     {
       limit: 10,
+      parentId,
     },
     {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -45,7 +46,14 @@ const Feed = () => {
     <div className="flex grow flex-col gap-4 p-4">
       {data.pages.map((page) => {
         return page.posts.map(({ author, post }) => {
-          return <PostView key={post.id} author={author} post={post} />;
+          return (
+            <PostView
+              key={post.id}
+              author={author}
+              post={post}
+              disableComments={!!parentId}
+            />
+          );
         });
       })}
       <div id="feed-bottom" />

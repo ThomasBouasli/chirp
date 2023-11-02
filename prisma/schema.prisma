@@ -8,15 +8,21 @@ datasource db {
 }
 
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["filteredRelationCount"]
 }
 
 model Post {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
 
+    parentId String? @db.VarChar(255)
+    parent   Post?   @relation("PostToPost", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    children Post[]  @relation("PostToPost")
+
     content  String @db.VarChar(255)
     authorId String
 
     @@index([authorId], name: "authorId")
+    @@index([parentId])
 }

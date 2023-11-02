@@ -8,19 +8,28 @@ import toast from "react-hot-toast";
 import { useMediaQuery } from "react-responsive";
 import { api } from "~/trpc/react";
 import type { RouterOutputs } from "~/trpc/shared";
-import { MoreVertical, Trash } from "lucide-react";
+import { Heart, MessageSquare, MoreVertical, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { CreatePost } from "./create-post";
+import { useState } from "react";
+import Feed from "./feed";
 
 dayjs.extend(relativeTime);
 
 type PostWithAuthor = RouterOutputs["post"]["getAll"]["posts"][number];
 
-const PostView = ({ author, post }: PostWithAuthor) => {
+type PostViewProps = PostWithAuthor & {
+  disableComments?: boolean;
+};
+
+const PostView = ({ author, post, disableComments }: PostViewProps) => {
+  const [sendReply, setSendReply] = useState(false);
+
   const apiUtils = api.useUtils();
   const { isSignedIn, user } = useUser();
 
@@ -38,44 +47,66 @@ const PostView = ({ author, post }: PostWithAuthor) => {
   });
 
   return (
-    <div className="pop_in flex justify-between gap-2 rounded-md p-2 shadow shadow-black">
-      <div className="flex gap-2">
-        <div className="flex-shrink-0">
-          <Image
-            src={author.imageUrl}
-            alt="Profile Image"
-            height={40}
-            width={40}
-            className="rounded-full"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center text-slate-300">
-            <span className="text-sm">{`@${author.username}`}</span>
-            &nbsp;·&nbsp;
-            <span className="text-xs">
-              {dayjs(post.createdAt).fromNow(isMobile)}
-            </span>
+    <div className="flex flex-col gap-4 rounded-md border shadow-md shadow-black transition-transform">
+      <div className="pop_in flex flex-col gap-2 p-2">
+        <div className="flex justify-between gap-2">
+          <div className="flex gap-2">
+            <div className="flex-shrink-0">
+              <Image
+                src={author.imageUrl}
+                alt="Profile Image"
+                height={40}
+                width={40}
+                className="rounded-full"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center text-slate-300">
+                <span className="text-sm">{`@${author.username}`}</span>
+                &nbsp;·&nbsp;
+                <span className="text-xs">
+                  {dayjs(post.createdAt).fromNow(isMobile)}
+                </span>
+              </div>
+              <span>{post.content}</span>
+            </div>
           </div>
-          <span>{post.content}</span>
+          {isSignedIn && user.id == author.id && (
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <MoreVertical
+                    className="flex-shrink-0 cursor-pointer"
+                    size={20}
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => deleteMutate(post.id)}>
+                    <Trash className="mr-2 flex-shrink-0" size={16} />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+        <div className="flex justify-center gap-4">
+          {!disableComments && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-light">{post._count.children}</span>
+              <MessageSquare
+                size={20}
+                strokeWidth={1}
+                onClick={() => setSendReply(!sendReply)}
+              />
+            </div>
+          )}
         </div>
       </div>
-      {isSignedIn && user.id == author.id && (
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <MoreVertical
-                className="flex-shrink-0 cursor-pointer"
-                size={20}
-              />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => deleteMutate(post.id)}>
-                <Trash className="mr-2 flex-shrink-0" size={16} />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      {sendReply && (
+        <div className="flex flex-col gap-2 border-t p-2 pt-4">
+          <CreatePost parentId={post.id} />
+          <Feed parentId={post.id} />
         </div>
       )}
     </div>

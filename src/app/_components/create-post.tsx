@@ -9,12 +9,12 @@ import { z } from "zod";
 import { TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { api } from "~/trpc/react";
 
-export function CreatePost() {
+export function CreatePost({ parentId }: { parentId?: string }) {
   const { user } = useUser();
   const { openSignIn } = useClerk();
 
   const [error, setError] = useState("");
-  const [input, setInput] = useState("");
+  const [content, setContent] = useState("");
   const [characters, setCharacters] = useState(0);
 
   const { post } = api.useUtils();
@@ -36,7 +36,7 @@ export function CreatePost() {
         <span>
           Please,&nbsp;
           <span
-            className="cursor-pointer font-bold"
+            className="cursor-pointer select-none font-bold"
             onClick={() => openSignIn()}
           >
             sign in
@@ -59,15 +59,17 @@ export function CreatePost() {
       </div>
       <div className="flex w-full grow flex-col">
         <textarea
-          placeholder="What's on your mind?"
+          placeholder={
+            parentId ? "Reply to this post..." : "What's on your mind?"
+          }
           className="grow resize-none overflow-hidden bg-transparent outline-none"
-          value={input}
+          value={content}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
-              if (input.length > 0) {
-                mutate(input);
-                setInput("");
+              if (content.length > 0) {
+                mutate({ content, parentId });
+                setContent("");
                 setCharacters(0);
               }
             }
@@ -93,7 +95,7 @@ export function CreatePost() {
             }
 
             setError("");
-            setInput(e.target.value);
+            setContent(e.target.value);
             setCharacters(e.target.value.length);
 
             //gambiarra monstra
@@ -130,10 +132,10 @@ export function CreatePost() {
         )}
       </div>
       <PostButton
-        show={input.length > 0}
+        show={content.length > 0}
         onClick={() => {
-          mutate(input);
-          setInput("");
+          mutate({ content, parentId });
+          setContent("");
           setCharacters(0);
         }}
       />
@@ -154,12 +156,25 @@ const PostButton = ({ onClick, show }: PostButtonProps) => {
   useEffect(() => {
     if (!buttonReference.current) return;
 
+    const hasPopIn = buttonReference.current.classList.contains("pop_in");
+    const hasPopOut = buttonReference.current.classList.contains("pop_out");
+
+    // On first render, the button was popping in and out so this fixes that
+    // Granted it is a pretty hacky fix
+    // But... at the end of the day, it works
     if (show) {
-      buttonReference.current?.classList.add("pop_in");
-      buttonReference.current?.classList.remove("pop_out");
+      if (hasPopOut) {
+        buttonReference.current?.classList.add("pop_in");
+        buttonReference.current?.classList.remove("pop_out");
+      }
+      {
+        buttonReference.current?.classList.add("pop_in");
+      }
     } else {
-      buttonReference.current?.classList.remove("pop_in");
-      buttonReference.current?.classList.add("pop_out");
+      if (hasPopIn) {
+        buttonReference.current?.classList.remove("pop_in");
+        buttonReference.current?.classList.add("pop_out");
+      }
     }
   }, [show]);
 
