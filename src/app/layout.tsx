@@ -34,6 +34,7 @@ export const metadata: Metadata = {
       },
     ],
   },
+  metadataBase: new URL("https://chirp.bouasli.com"),
 };
 
 export default function RootLayout({
