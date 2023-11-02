@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { useMediaQuery } from "react-responsive";
 import { api } from "~/trpc/react";
 import type { RouterOutputs } from "~/trpc/shared";
-import { Heart, MessageSquare, MoreVertical, Trash } from "lucide-react";
+import { MessageSquare, MoreVertical, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
