@@ -10,7 +10,7 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "react-hot-toast";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
 const inter = Inter({
   subsets: ["latin"],
