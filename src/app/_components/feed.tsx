@@ -38,7 +38,7 @@ const Feed = ({ parentId }: { parentId?: string }) => {
     };
   }, [infiniteQuery]);
 
-  if (postsLoading) return <LoadingPage />;
+  if (postsLoading && !parentId) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong...</div>;
 
