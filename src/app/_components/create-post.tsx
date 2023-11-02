@@ -62,7 +62,9 @@ export function CreatePost({ parentId }: { parentId?: string }) {
         <textarea
           ref={inputRef}
           placeholder={
-            parentId ? "Reply to this post..." : "What's on your mind?"
+            parentId
+              ? "Reply to this post..."
+              : "What's on your mind? (emojis only!)"
           }
           className="grow resize-none overflow-hidden bg-transparent outline-none"
           value={content}
