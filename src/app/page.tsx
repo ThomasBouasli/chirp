@@ -7,6 +7,7 @@ import { useMediaQuery } from "react-responsive";
 import { dark } from "@clerk/themes";
 import Feed from "./_components/feed";
 import Image from "next/image";
+import Footer from "./_components/footer";
 
 export default function Home() {
   const { isLoaded } = useUser();
@@ -34,6 +35,7 @@ export default function Home() {
           <CreatePost />
         </div>
         <Feed />
+        <Footer />
       </div>
     </main>
   );
