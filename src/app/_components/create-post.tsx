@@ -10,6 +10,7 @@ import { TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { api } from "~/trpc/react";
 
 export function CreatePost({ parentId }: { parentId?: string }) {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useUser();
   const { openSignIn } = useClerk();
 
@@ -59,6 +60,7 @@ export function CreatePost({ parentId }: { parentId?: string }) {
       </div>
       <div className="flex w-full grow flex-col">
         <textarea
+          ref={inputRef}
           placeholder={
             parentId ? "Reply to this post..." : "What's on your mind?"
           }
@@ -71,6 +73,9 @@ export function CreatePost({ parentId }: { parentId?: string }) {
                 mutate({ content, parentId });
                 setContent("");
                 setCharacters(0);
+                if (inputRef.current) {
+                  inputRef.current.style.height = "fit-content";
+                }
               }
             }
           }}
@@ -101,10 +106,8 @@ export function CreatePost({ parentId }: { parentId?: string }) {
             //gambiarra monstra
             //nao sei porque mas no primeiro caractere, o scrollHeight vai para 40px
             //antes e depois disso ele eh 24px * linhas
-            if (e.target.value.length != 2) {
-              e.target.style.height = "24px";
-              e.target.style.height = `${e.target.scrollHeight}px`;
-            }
+            e.target.style.height = "24px";
+            e.target.style.height = `${e.target.scrollHeight}px`;
           }}
         />
         {characters > 0 && (
@@ -137,6 +140,9 @@ export function CreatePost({ parentId }: { parentId?: string }) {
           mutate({ content, parentId });
           setContent("");
           setCharacters(0);
+          if (inputRef.current) {
+            inputRef.current.style.height = "fit-content";
+          }
         }}
       />
     </div>
