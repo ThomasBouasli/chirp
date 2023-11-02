@@ -139,6 +139,7 @@ export function CreatePost({ parentId }: { parentId?: string }) {
       <PostButton
         show={content.length > 0}
         onClick={() => {
+          if (content.length === 0) return;
           mutate({ content, parentId });
           setContent("");
           setCharacters(0);
@@ -192,6 +193,7 @@ const PostButton = ({ onClick, show }: PostButtonProps) => {
       className="h-fit rounded-md bg-blue-500 px-4 py-2 text-white opacity-0 hover:bg-blue-600"
       onClick={onClick}
       type="button"
+      disabled={!show}
     >
       Post
     </button>
