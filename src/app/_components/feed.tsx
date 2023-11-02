@@ -45,7 +45,7 @@ const Feed = ({ parentId }: { parentId?: string }) => {
   if (!data) return <div>Something went wrong...</div>;
 
   return (
-    <div className="flex grow flex-col gap-4 p-4">
+    <>
       {data.pages.map((page) => {
         return page.posts.map(({ author, post }) => {
           return (
@@ -59,7 +59,7 @@ const Feed = ({ parentId }: { parentId?: string }) => {
         });
       })}
       <div id="feed-bottom" />
-    </div>
+    </>
   );
 };
 
