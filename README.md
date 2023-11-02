@@ -1,4 +1,7 @@
+![logo](https://github.com/ThomasBouasli/chirp/assets/78673858/138a7d45-ee0a-411e-89ba-8f2d0e879c7b)
+
 # Chirp 🐦
+
 
 A simple twitter clone, with the core mechanic being...
 
