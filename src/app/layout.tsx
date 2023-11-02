@@ -10,16 +10,30 @@ import { headers } from "next/headers";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "react-hot-toast";
+import { Metadata } from "next";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Chirp",
-  description: "A Twitter clone built with Next.js and TRPC",
+  description: "A social media platform for 😃",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    title: "Chirp",
+    description: "A social media platform for 😃",
+    type: "website",
+    images: [
+      {
+        url: "/logo.png",
+        width: 400,
+        height: 400,
+        alt: "Chirp Logo",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
