@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo.png",
+        url: "/card.png",
         width: 400,
         height: 400,
         alt: "Chirp Logo",
