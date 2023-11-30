@@ -34,19 +34,19 @@ export const postRouter = createTRPCRouter({
       z
         .object({
           limit: z.number().min(1).max(30).optional(),
-          offset: z.number().min(0).optional(),
+          cursor: z.number().min(0).optional(),
           parent_id: z.string().optional(),
         })
         .optional(),
     )
     .query(async ({ input }) => {
       const limit = input?.limit ?? 30;
-      const offset = input?.offset;
+      const cursor = input?.cursor;
       const parent_id = input?.parent_id;
 
       const posts = await db.query.posts.findMany({
         limit: limit + 1,
-        offset: offset ?? 0,
+        offset: cursor ?? 0,
         where: (posts_table, { eq }) => parent_id ? eq(posts_table.parent_id, parent_id) : undefined,
         orderBy: (posts_table) => posts_table.created_at,
         with: {
@@ -54,10 +54,10 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      let nextOffset: typeof offset | undefined = undefined;
+      let nextCursor: typeof cursor | undefined = undefined;
 
       if (posts.length > limit) {
-        nextOffset = offset ? offset + limit : limit;
+        nextCursor = cursor ? cursor + limit : limit;
         posts.pop();
       }
 
@@ -90,7 +90,7 @@ export const postRouter = createTRPCRouter({
 
       return {
         posts: joined,
-        nextOffset,
+        nextCursor,
       };
     }),
   create: privateProcedure

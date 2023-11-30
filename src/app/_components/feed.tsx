@@ -12,7 +12,7 @@ const Feed = ({ parentId }: { parentId?: string }) => {
       parent_id: parentId,
     },
     {
-      getNextPageParam: (lastPage) => lastPage.nextOffset
+      getNextPageParam: (lastPage) => lastPage.nextCursor
     },
   );
 
