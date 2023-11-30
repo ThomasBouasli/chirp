@@ -12,7 +12,7 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { db } from "~/server/db";
 import { posts as posts_table } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 const ratelimit = new Ratelimit({
@@ -48,7 +48,7 @@ export const postRouter = createTRPCRouter({
         limit: limit + 1,
         offset: cursor ?? 0,
         where: (posts_table, { eq }) => parent_id ? eq(posts_table.parent_id, parent_id) : undefined,
-        orderBy: (posts_table) => posts_table.created_at,
+        orderBy: (posts_table) => desc(posts_table.created_at),
         with: {
           children: true,
         },
