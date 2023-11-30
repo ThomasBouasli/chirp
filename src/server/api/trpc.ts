@@ -12,8 +12,6 @@ import { type NextRequest } from "next/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { db } from "~/server/db";
-
 /**
  * 1. CONTEXT
  *
@@ -56,7 +54,6 @@ export const createTRPCContext = (opts: { req: NextRequest }) => {
 
   return {
     headers: opts.req.headers,
-    db,
     userId,
   };
 };

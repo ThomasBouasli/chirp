@@ -10,6 +10,10 @@ import {
 
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { db } from "~/server/db";
+import { posts as posts_table } from "~/server/db/schema";
+import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
@@ -29,50 +33,43 @@ export const postRouter = createTRPCRouter({
     .input(
       z
         .object({
-          limit: z.number().min(1).max(30).nullish(),
-          cursor: z.string().nullish(),
-          parentId: z.string().nullish(),
+          limit: z.number().min(1).max(30).optional(),
+          offset: z.number().min(0).optional(),
+          parent_id: z.string().optional(),
         })
         .optional(),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const limit = input?.limit ?? 30;
-      const cursor = input?.cursor;
-      const parentId = input?.parentId;
+      const offset = input?.offset;
+      const parent_id = input?.parent_id;
 
-      const posts = await ctx.db.post.findMany({
-        where: { parentId: parentId ?? null },
-        take: limit + 1,
-        orderBy: { createdAt: "desc" },
-        cursor: cursor ? { id: cursor } : undefined,
-        select: {
-          id: true,
-          content: true,
-          authorId: true,
-          createdAt: true,
-          _count: {
-            select: { children: true },
-          },
+      const posts = await db.query.posts.findMany({
+        limit: limit + 1,
+        offset: offset ?? 0,
+        where: (posts_table, { eq }) => parent_id ? eq(posts_table.parent_id, parent_id) : undefined,
+        orderBy: (posts_table) => posts_table.created_at,
+        with: {
+          children: true,
         },
       });
 
-      let nextCursor: typeof cursor | undefined = undefined;
+      let nextOffset: typeof offset | undefined = undefined;
 
       if (posts.length > limit) {
-        const nextItem = posts.pop();
-        nextCursor = nextItem!.id;
+        nextOffset = offset ? offset + limit : limit;
+        posts.pop();
       }
 
       const users = (
         await clerkClient.users.getUserList({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- typescript is being naughty
-          userId: posts.map((post) => post.authorId),
+          userId: posts.map((post) => post.author_id),
           limit: 100,
         })
       ).map(filterUserForClient);
 
       const joined = posts.map((post) => {
-        const author = users.find((user) => user.id === post.authorId);
+        const author = users.find((user) => user.id === post.author_id);
 
         if (!author?.username) {
           throw new TRPCError({
@@ -93,7 +90,7 @@ export const postRouter = createTRPCRouter({
 
       return {
         posts: joined,
-        nextCursor,
+        nextOffset,
       };
     }),
   create: privateProcedure
@@ -119,12 +116,12 @@ export const postRouter = createTRPCRouter({
         });
       }
 
-      const post = await ctx.db.post.create({
-        data: {
-          authorId: ctx.userId,
-          content,
-          parentId,
-        },
+      const post = await db.insert(posts_table).values({
+        id: randomUUID(),
+        parent_id: parentId,
+        author_id: ctx.userId,
+        content,
+        created_at: new Date(),
       });
 
       return post;
@@ -133,8 +130,8 @@ export const postRouter = createTRPCRouter({
   delete: privateProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
-      const post = await ctx.db.post.findUnique({
-        where: { id: input },
+      const post = await db.query.posts.findFirst({
+        where: (posts_table, { eq }) => eq(posts_table.id, input),
       });
 
       if (!post) {
@@ -144,19 +141,17 @@ export const postRouter = createTRPCRouter({
         });
       }
 
-      if (post.authorId !== ctx.userId) {
+      if (post.author_id !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only delete your own posts",
         });
       }
 
-      await ctx.db.post.deleteMany({
-        where: { parentId: input },
-      });
+      await db.transaction(async (trx) => {
+        await trx.delete(posts_table).where(eq(posts_table.parent_id, input));
 
-      await ctx.db.post.deleteMany({
-        where: { id: input },
+        await trx.delete(posts_table).where(eq(posts_table.id, input));
       });
 
       return true;
@@ -169,8 +164,8 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const post = await ctx.db.post.findUnique({
-        where: { id: input.id },
+      const post = await db.query.posts.findFirst({
+        where: (posts_table, { eq }) => eq(posts_table.id, input.id),
       });
 
       if (!post) {
@@ -180,19 +175,19 @@ export const postRouter = createTRPCRouter({
         });
       }
 
-      if (post.authorId !== ctx.userId) {
+      if (post.author_id !== ctx.userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You can only edit your own posts",
         });
       }
 
-      await ctx.db.post.update({
-        where: { id: input.id },
-        data: {
+      await db
+        .update(posts_table)
+        .set({
           content: input.content,
-        },
-      });
+        })
+        .where(eq(posts_table.id, input.id));
 
       return true;
     }),

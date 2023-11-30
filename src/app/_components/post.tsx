@@ -46,6 +46,11 @@ const PostView = ({ author, post, disableComments }: PostViewProps) => {
     query: "(max-width: 640px)",
   });
 
+   void apiUtils.post.getAll.prefetchInfinite({
+    limit: 10,
+    parent_id: post.id,
+   })
+   
   return (
     <div className="flex flex-col gap-4 rounded-md border shadow-md shadow-black transition-transform">
       <div className="pop_in flex flex-col gap-2 p-2">
@@ -65,7 +70,7 @@ const PostView = ({ author, post, disableComments }: PostViewProps) => {
                 <span className="text-sm">{`@${author.username}`}</span>
                 &nbsp;·&nbsp;
                 <span className="text-xs">
-                  {dayjs(post.createdAt).fromNow(isMobile)}
+                  {dayjs(post.created_at).fromNow(isMobile)}
                 </span>
               </div>
               <span>{post.content}</span>
@@ -92,8 +97,12 @@ const PostView = ({ author, post, disableComments }: PostViewProps) => {
         </div>
         <div className="flex justify-center gap-4">
           {!disableComments && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-light">{post._count.children}</span>
+            <div
+              className={`flex items-center gap-2 ${post.children.length > 0 ? 'cursor-pointer text-zinc-200' : 'cursor-not-allowed text-zinc-200/30'}`}
+            >
+              <span
+                className="text-sm font-light"
+              >{post.children.length}</span>
               <MessageSquare
                 size={20}
                 strokeWidth={1}
@@ -103,7 +112,7 @@ const PostView = ({ author, post, disableComments }: PostViewProps) => {
           )}
         </div>
       </div>
-      {sendReply && (
+      {sendReply && post.children.length > 0 && (
         <div className="relative flex flex-col gap-2 border-t p-2 pt-4">
           {isSignedIn && <CreatePost parentId={post.id} />}
           <Feed parentId={post.id} />

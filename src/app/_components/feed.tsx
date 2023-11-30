@@ -9,10 +9,10 @@ const Feed = ({ parentId }: { parentId?: string }) => {
   const infiniteQuery = api.post.getAll.useInfiniteQuery(
     {
       limit: 10,
-      parentId,
+      parent_id: parentId,
     },
     {
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      getNextPageParam: (lastPage) => lastPage.nextOffset
     },
   );
 
